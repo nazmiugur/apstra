@@ -1,0 +1,83 @@
+---
+  ### ---------------------------------------------------------------------------
+  ### APSTRA API AUTOMATION
+  ### ---------------------------------------------------------------------------
+  - hosts: localhost
+    gather_facts: False
+    connection: local
+    roles:
+      - { role: apstra_auth }
+
+    tasks:
+      - name: "Get Blueprint ID"
+        ansible.builtin.uri:
+          url: "{{ apstra.baseurl }}/blueprints"
+          method: GET
+         # return_content: yes
+          status_code: 200
+          headers:
+            content-type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          force_basic_auth: yes
+        register: bp_ids
+
+      - name: show blueprints
+        ansible.builtin.debug:
+          msg: "{{ bp_ids }}"
+
+
+      - name: Retrieve Blueprint ID
+        ansible.builtin.set_fact:
+          bp_id: "{{ bp_ids.json | cleanup_bp_id(bp_name) }}"
+
+      - name: show blueprint id
+        ansible.builtin.debug:
+          msg: "{{ bp_id }}"
+
+
+
+
+      - name: send specific query       
+        uri:
+          url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
+          method: POST
+          return_content: yes
+          status_code: 200
+          headers:
+            Content-Type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          body: {"query": "match(node('system', name='leaf', role='leaf', label='{{ switch_name }}'))"}
+          force_basic_auth: yes
+          body_format: json
+        register: tstqry
+        run_once: True
+      
+      - name: show specific query
+        ansible.builtin.debug:
+          msg: "{{ tstqry.json }}"
+
+      - name: set switch id
+        ansible.builtin.set_fact:
+          switch_id: "{{ tstqry.json['items'][0].leaf.id }}"    
+
+      - name: show body of the post request
+        ansible.builtin.debug:
+          msg: "{{ lookup('ansible.builtin.template', './templates/switch-system-links.j2') }}"
+
+      - name: create generic system
+        uri:
+          url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/switch-system-links"
+          method: POST
+          return_content: yes
+          status_code: 201
+          headers:
+            Content-Type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links.j2') }}"
+          force_basic_auth: yes
+          body_format: json
+        run_once: True
+

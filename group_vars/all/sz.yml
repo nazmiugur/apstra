@@ -1,0 +1,26 @@
+---
+### Please follow the format when editing this file. File written in YAML.
+sz:
+  name: RZ1                ### Security Zones
+  vns:                       ### Virtual Network
+  - vlan_id: 110
+    ipv4_gw: 192.168.90.1    
+    ip_subnet: 192.168.90.0/24
+
+  - vlan_id: 120
+    ipv4_gw: 192.168.91.1
+    ip_subnet: 192.168.91.0/24
+
+  - vlan_id: 130
+    ipv4_gw: 192.168.92.1
+    ip_subnet: 192.168.92.0/24
+
+  - vlan_id: 140             ### L3 GW Disabled for this VN
+    name: Test-2_VM_Data_VN
+  
+  - vlan_id: 141
+    name: Test-2_VM_BMS_VN
+
+  - vlan_id: 150
+    ipv4_gw: 192.168.95.1
+    ip_subnet: 192.168.95.0/24
