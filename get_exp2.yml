@@ -104,3 +104,21 @@
           msg: "{{ systems.json }}"
 
 
+      - name: send specific query2
+        ansible.builtin.uri:
+          url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/obj-policy-application-points"
+          method: POST
+          return_content: yes
+          status_code: 201
+          headers:
+            Content-Type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          body: { 'rack': 'apstra_single_001', 'rack_tags': '' }
+          force_basic_auth: yes
+          body_format: json
+        register: tstqry2
+        ignore_errors: true
+        run_once: True
+
+

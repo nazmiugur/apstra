@@ -6,14 +6,18 @@ sz:
   - vlan_id: 110
     ipv4_gw: 192.168.90.1    
     ip_subnet: 192.168.90.0/24
+    name: VLAN110_192_168_90_10
 
   - vlan_id: 120
     ipv4_gw: 192.168.91.1
     ip_subnet: 192.168.91.0/24
-
+    name: VLAN120_192_168_91_0
+  
   - vlan_id: 130
     ipv4_gw: 192.168.92.1
     ip_subnet: 192.168.92.0/24
+    name: VLAN130_192_168_92_0
+
 
   - vlan_id: 140             ### L3 GW Disabled for this VN
     name: Test-2_VM_Data_VN
@@ -24,3 +28,4 @@ sz:
   - vlan_id: 150
     ipv4_gw: 192.168.95.1
     ip_subnet: 192.168.95.0/24
+    name: VLAN150_192_168_95_0
