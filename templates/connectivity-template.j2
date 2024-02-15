@@ -21,7 +21,7 @@
         "policy_type_name": "AttachSingleVLAN",
         "attributes": {
           "vn_node_id": "{{ vn_id }}",
-          "tag_type": "{{ tag_type }}"
+          "tag_type": "{{ tag_type | default('vlan_tagged') }}"
         },
         "visible": false	
       },
