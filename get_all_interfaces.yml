@@ -29,7 +29,7 @@
 
 
 
-      - name: send specific query2
+      - name: query to collect interface with tags
         ansible.builtin.uri:
           url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/obj-policy-application-points"
           method: POST
@@ -39,29 +39,19 @@
             Content-Type: "application/json"
             AUTHTOKEN: "{{ login.json.token }}"
           validate_certs: false
-          body: { 'type': 'interface' }
+          body: { 'interface_tags': '{{ interface_tag }}' }
           force_basic_auth: yes
           body_format: json
-        register: tstqry2
+        register: qry
         ignore_errors: true
         run_once: True
 
-      - name: show qry
-        ansible.builtin.debug:
-          msg: "{{ tstqry2.json.application_points }}"
 
-
-      - name: get extracted data
+      - name: set extracted data variable
         ansible.builtin.set_fact:
-          tagged_ifs: "{{ tstqry2.json.application_points | extract_nested_children  }}"  
+          tagged_ifs: "{{ qry.json.application_points | extract_nested_children  }}"
 
-
-      - name: show tagged_ifs
-        ansible.builtin.debug:
-          msg: "{{ tagged_ifs['children'] }}"
 
       - name: show extracted data
         ansible.builtin.debug:
-          msg: "{{ tagged_ifs['children'] | flatten_children_list_to_ifs }}"  
-
-
+          msg: "{{ tagged_ifs['children'] | flatten_children_list_to_ifs }}"   

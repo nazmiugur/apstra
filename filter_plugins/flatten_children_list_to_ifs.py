@@ -17,10 +17,10 @@ class FilterModule(object):
                          transient_item={}
                          transient_item.update({"rack_id": child["id"]})
                          transient_item.update({"rack_label": child["label"]})
-                         transient_item.update({"leaf_id": child2["id"]})
-                         transient_item.update({"leaf_type": child2["type"]})
-                         transient_item.update({"leaf_label": child2["label"]})
-                         transient_item.update({"interface_id": child3["id"]})
-                         transient_item.update({"interface_label": child3["label"]})
+                         transient_item.update({"sw_id": child2["id"]})
+                         transient_item.update({"sw_type": child2["type"]})
+                         transient_item.update({"sw_label": child2["label"]})
+                         transient_item.update({"interface_aep_id": child3["id"]})
+                         transient_item.update({"interface_aep_label": child3["label"]})
                          retval.append(transient_item)
        return retval
