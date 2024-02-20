@@ -22,24 +22,19 @@
           force_basic_auth: yes
         register: bp_ids
 
-      - name: show blueprints
-        ansible.builtin.debug:
-          msg: "{{ bp_ids }}"
+
 
 
       - name: Retrieve Blueprint ID
         ansible.builtin.set_fact:
           bp_id: "{{ bp_ids.json | cleanup_bp_id(bp_name) }}"
 
-      - name: show blueprint id
-        ansible.builtin.debug:
-          msg: "{{ bp_id }}"
 
 
 
 
       - name: send specific query get first leaf id       
-        uri:
+        ansible.builtin.uri:
           url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
           method: POST
           return_content: yes
@@ -53,18 +48,16 @@
           body_format: json
         register: leaf1qry
         run_once: True
-      
-      - name: show leaf1qry query
-        ansible.builtin.debug:
-          msg: "{{ leaf1qry.json }}"
 
       - name: set switch id
         ansible.builtin.set_fact:
-          switch_id: "{{ leaf1qry.json['items'][0].leaf.id }}"    
+          switch_id: "{{ leaf1qry.json['items'][0].leaf.id }}"
+        when: switch2_name is defined
+
 
 
       - name: send specific query get second leaf id  
-        uri:
+        ansible.builtin.uri:
           url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/qe?type=staging"
           method: POST
           return_content: yes
@@ -80,10 +73,6 @@
         run_once: True
         when: switch2_name is defined
 
-      - name: show leaf2qry query
-        ansible.builtin.debug:
-          msg: "{{ leaf2qry.json }}"
-        when: switch2_name is defined
 
       - name: set switch2 id
         ansible.builtin.set_fact:
@@ -91,11 +80,6 @@
         when: switch2_name is defined
 
 
-
-      - name: show body of the post request
-        ansible.builtin.debug:
-          msg: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-dual.j2') }}"
-        when: switch2_name is defined
 
       - name: set body of the post request
         ansible.builtin.set_fact:
@@ -108,13 +92,6 @@
           switch_system_creation_body: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-mono.j2') }}"
         when: switch2_name is not defined
 
-
-
-
-      - name: show body of the post request
-        ansible.builtin.debug:
-          msg: "{{ lookup('ansible.builtin.template', './templates/switch-system-links-mono.j2') }}"
-        when: switch2_name is not defined
 
 
       - name: create generic system
@@ -131,4 +108,5 @@
           force_basic_auth: yes
           body_format: json
         run_once: True
+        ignore_errors: true
 
