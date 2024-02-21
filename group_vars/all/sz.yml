@@ -25,7 +25,7 @@ sz:
   - vlan_id: 141
     name: Test-2_VM_BMS_VN
 
-  - vlan_id: 150
-    ipv4_gw: 192.168.95.1
-    ip_subnet: 192.168.95.0/24
-    name: VLAN150_192_168_95_0
+  - vlan_id: 160
+    ipv4_gw: 192.168.96.1
+    ip_subnet: 192.168.96.0/24
+    name: VLAN160_192_168_96_0
