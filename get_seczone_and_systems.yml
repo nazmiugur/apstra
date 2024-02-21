@@ -1,0 +1,111 @@
+---
+  ### ---------------------------------------------------------------------------
+  ### APSTRA API AUTOMATION
+  ### ---------------------------------------------------------------------------
+  - hosts: localhost
+    gather_facts: True
+    connection: local
+    roles:
+      - { role: apstra_auth }
+
+    tasks:
+      - name: "Get Blueprint ID"
+        ansible.builtin.uri:
+          url: "{{ apstra.baseurl }}/blueprints"
+          method: GET
+         # return_content: yes
+          status_code: 200
+          headers:
+            content-type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          force_basic_auth: yes
+        register: bp_ids
+
+
+      - name: Retrieve Blueprint ID
+        ansible.builtin.set_fact:
+          bp_id: "{{ bp_ids.json | cleanup_bp_id(bp_name) }}"
+
+
+      - name: "Get securiy zones id "
+        ansible.builtin.uri:
+          url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/security-zones"
+          method: GET
+         # return_content: yes
+          status_code: 200
+          headers:
+            content-type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          force_basic_auth: yes
+        register: seczones
+
+      - name: show security zones
+        ansible.builtin.debug:
+          msg: "{{ seczones.json['items'] | dict2items }}"
+      
+
+      - name: set securiy zones to sql ready format
+        ansible.builtin.set_fact:
+           seczones : "{{ seczones.json['items'] | get_seczones_pgsql_ready_format(bp_id) }}"
+
+      - name: show security zones
+        ansible.builtin.debug:
+           msg: "{{ seczones }}"
+
+
+      - name: set timedate to get consistency accross the collected data
+        ansible.builtin.set_fact:
+          datetime_of_pb: "{{ ansible_date_time['iso8601_basic'] }}"
+
+      - name: show sql statement security zones
+        ansible.builtin.debug:
+           msg: "{{ lookup('ansible.builtin.template', './templates/pgsql-q-insert-seczones.j2') }}"
+
+      - name: Insert security zones a.k.a vrf information into PostgreSQL to tale dcn_routingzone
+        postgresql_query:
+          db: "{{ pg_login_db }}"
+          login_user: "{{ pg_login_user }}"
+          login_password: "{{ pg_login_password }}"
+          login_host: "{{ pg_login_host }}"
+          query: "{{ lookup('ansible.builtin.template', './templates/pgsql-q-insert-seczones.j2') }}"
+
+
+      - name: Get systems
+        ansible.builtin.uri:
+          url: "{{ apstra.baseurl }}/blueprints/{{ bp_id }}/nodes?node_type=system"
+          method: GET
+          return_content: yes
+          status_code: 200
+          headers:
+            content-type: "application/json"
+            AUTHTOKEN: "{{ login.json.token }}"
+          validate_certs: false
+          force_basic_auth: yes
+          body_format: json
+        register: systems
+
+      - name: show systems
+        ansible.builtin.debug:
+          msg: "{{ systems.json['nodes'] | get_systems_pgsql_ready_format(bp_id) }}" 
+
+      - name: set server system variable in sql ready format
+        ansible.builtin.set_fact:
+          gen_systems: "{{ systems.json['nodes'] | get_systems_pgsql_ready_format(bp_id) }}"
+
+
+
+      - name: show sql statement generic systems
+        ansible.builtin.debug:
+           msg: "{{ lookup('ansible.builtin.template', './templates/pgsql-q-insert-systems.j2') }}"
+
+      - name: Insert systems of type server, a.k.a generic systems information into PostgreSQL to tale dcn_system
+        postgresql_query:
+          db: "{{ pg_login_db }}"
+          login_user: "{{ pg_login_user }}"
+          login_password: "{{ pg_login_password }}"
+          login_host: "{{ pg_login_host }}"
+          query: "{{ lookup('ansible.builtin.template', './templates/pgsql-q-insert-systems.j2') }}"
+
+
