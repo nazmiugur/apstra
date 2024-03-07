@@ -1,10 +1,19 @@
-INSERT INTO {{ leaves_tablename }} (remote_id,name,blueprint_id,rack_id,status)
+{% if leaves_info[0] != [] %}
+INSERT INTO {{ leaf_tablename }} (remote_id,name,blueprint_id,rack_id,status)
 VALUES
-{% for row in leaves_only %}
+{% for row in leaves_info[0] %}
   {% if not loop.last %}
   ({{ row }},'{{ datetime_of_pb }}'),
   {% endif %}
   {% if loop.last %}
-  ({{ row }},'{{ datetime_of_pb }}');
+  ({{ row }},'{{ datetime_of_pb }}')
   {% endif %}
 {% endfor %}
+{% endif %}
+
+{% if leaves_info[1] != [] %}
+   {% for row in leaves_info[1] %}
+   DELETE FROM {{ leaf_tablename }}
+   WHERE remote_id='{{ row }}';
+   {% endfor %}
+{% endif %}
