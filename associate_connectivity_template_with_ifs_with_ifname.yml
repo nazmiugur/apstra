@@ -60,6 +60,10 @@
         ansible.builtin.set_fact:
           interface_ids: []
 
+      - name: show flattened interface list
+        ansible.builtin.debug:
+          msg: "{{ flatten_if_list }}"
+
 
 
       - name: get interfaces to be associated with connectivity template
