@@ -66,7 +66,7 @@
 
       - name: get interfaces to be associated with connectivity template
         ansible.builtin.set_fact:
-          interface_ids: "{{ interface_ids + [ item.interface_id ] }}"
+          interface_ids: "{{ interface_ids + [ item.interface_aep_id ] }}"
         when: 
           - '"{{ interface_label }}" in item.interface_label'
           - '"{{ leaf_label }}" in item.leaf_label'
