@@ -1,33 +1,18 @@
-## Routing Zones & Virtual Networks Creation/Deletion using Apstra APIs
+## VNI, Connectivity template, generic system creation and CT association using Apstra APIs
 
-This project contains scripts that create/delete multiple routing zones and virtual networks, assign all leaf devices to the VNs and commit the changes via Apstra API calls
-
-## Requirements
-
-Juniper Apstra version 4.0 <br>
-Ansible: `pip3/pip install ansible==2.10.4` (Use Ansible version >= 2.10)
-
-## Usage
-Clone repo
-```
-git clone git@github.com:Juniper-SE/apstra-create-vns.git
-```
-
+This project contains scripts that reads from csv files and create vni, generic systems, connectivity templates and also do associations with connectivity templates and ports according to csv data.
+It uses several roles and plugins from github.com:Juniper-SE/apstra-create-vns.git
 Follow the steps below to run the scripts
-* Edit the group_vars/all/secrets.yml file and include the AIS credentials
-* Edit the group_vars/all/sz.yml file to include blueprint name (not the ID) already created in AIS, security zones and VNs to be created.
+* Edit the group_vars/all/secrets.yml file and include the  credentials
 * Run the scripts
-
-Script to create virtual networks and routing zones:
+# to create vn, connectivity template and generic system use:
+ansible-playbook  read_csv_and_create_vni.yml -e portsfile=ports3.csv -e vnisfile=vnis.csv   
+## to do assoications use
+ansible-playbook read_csv_and_associate.yml -e portsfile=ports3.csv -e vnisfile=vnis.csv   
 ```
-ansible-playbook  pb.create_sz_vn.yml
-```
-
-Script to delete virtual networks and routing zones:
-```
-ansible-playbook  pb.delete_sz_vn.yml
-```
+portsfile: defining physical topology. Follow the column naming pattern exactly like in port3.csv
+vnisfile: defining vlan id, vni name, assoicated switch listed .  Follow the column naming pattern exactly like in vnis.csv
 
 
 ## Author Information
-Jindu Okoli 
+Nazmi Ugur
